@@ -62,7 +62,7 @@ def touch_file(full_path):
 
 
 def run_editor(full_path):
-    subprocess.Popen(['subl', '--new-window', full_path])
+    subprocess.Popen(['subl', full_path])
 
 
 if __name__ == '__main__':
