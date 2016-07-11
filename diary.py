@@ -17,6 +17,8 @@ EDITOR_VARIABLES = [
     'EDITOR',
 ]
 
+DEFAULT_EDITOR = 'vi'
+
 
 def main():
     root_directory = get_root_directory()
@@ -74,12 +76,9 @@ def touch_file(full_path):
 
 
 def get_editor():
-    for editor_variable in EDITOR_VARIABLES:
-        editor = os.getenv(editor_variable)
-        if editor:
-            return editor
-
-    return None
+    editors = [os.getenv(i) for i in EDITOR_VARIABLES]
+    available = [editor for editor in editors if editor]
+    return next(iter(available), DEFAULT_EDITOR)
 
 
 def check_editor(editor):
