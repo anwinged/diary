@@ -9,23 +9,35 @@ import sys
 
 ROOR_DIRECTORY_ENV = 'DIARY_ROOT_DIRECTORY'
 
-ROOT_DIRECTORY_DEFAULT = '/home/av/Dropbox/Diary'
+EDITOR_ENV = 'DIARY_EDITOR'
+
+EDITOR_VARIABLES = [
+    EDITOR_ENV,
+    'VISUAL',
+    'EDITOR',
+]
 
 
 def main():
     root_directory = get_root_directory()
     check_root_directory(root_directory)
+    editor = get_editor()
+    check_editor(editor)
     filename = get_file_name()
     full_path = os.path.join(root_directory, filename)
     touch_file(full_path)
-    run_editor(full_path)
+    run_editor(editor, full_path)
 
 
 def get_root_directory():
-    return os.getenv(ROOR_DIRECTORY_ENV, ROOT_DIRECTORY_DEFAULT)
+    return os.getenv(ROOR_DIRECTORY_ENV)
 
 
 def check_root_directory(root_directory):
+    if root_directory is None:
+        print 'Root directory not setup. Use {} environment variable'.format(ROOR_DIRECTORY_ENV)
+        sys.exit(1)
+
     if not os.path.exists(root_directory):
         print 'Root directory "{}" does not exists'.format(root_directory)
         sys.exit(1)
@@ -61,8 +73,24 @@ def touch_file(full_path):
         new_file.write(template)
 
 
-def run_editor(full_path):
-    subprocess.Popen(['subl', full_path])
+def get_editor():
+    for editor_variable in EDITOR_VARIABLES:
+        editor = os.getenv(editor_variable)
+        if editor:
+            return editor
+
+    return None
+
+
+def check_editor(editor):
+    if editor is None:
+        list_of_variables = ', '.join(EDITOR_VARIABLES)
+        print 'Editor not found. Check environment variables: {}'.format(list_of_variables)
+        sys.exit(1)
+
+
+def run_editor(editor, full_path):
+    subprocess.call([editor, full_path])
 
 
 if __name__ == '__main__':
